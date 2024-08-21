@@ -1,0 +1,45 @@
+---
+import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+
+import MainLayout from "../../../layouts/MainLayout.astro"
+import Article from "../../../components/Article.astro";
+import { capitalize } from "../../../utils";
+
+const {tag} = Astro.params
+
+if(tag === undefined) throw new Error("Tags is required")
+
+
+const allBlogArticles: CollectionEntry<"blog">[] =( await getCollection("blog"))
+  .sort((a: CollectionEntry<"blog">, b: CollectionEntry<"blog">) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+
+
+const allTags = allBlogArticles.filter(article => article.data.tags.includes(tag))  
+---
+
+<MainLayout title="Articles">
+
+    <a href="/articles/" class="inline-block bg-gray-100 p-2 mb-6 hover:bg-indigo-500 hover:text-white">Back To Articles</a>
+    <article>
+    <h1 class="text-2xl pb-3">#{capitalize(tag)}</h1>
+      <!-- Main Grid -->
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <!-- Article Card -->
+        {allTags.map(article => (
+        <Article article={article} />
+        ))}
+      </div>
+
+        <!-- Pagination -->
+        <div class="flex justify-between mt-10">
+          <a href="#" class="inline-block bg-indigo-100 px-3 py-2 hover:bg-indigo-600 hover:text-white rounded-lg">
+            Previous
+          </a>
+          <a href="#"
+           class="inline-block bg-indigo-100 px-3 py-2 hover:bg-indigo-600 hover:text-white rounded-lg">
+            Next
+          </a>
+        </div>
+</MainLayout>
